@@ -10,6 +10,7 @@ REVISION="1"
 SOURCE_URI="http://apache.mirrors.tds.net/xerces/c/3/sources/xerces-c-$portVersion.tar.bz2"
 CHECKSUM_SHA256="9408f12c1628ecf80730bedbe8b2caad810edd01bb4c66f77b60c873e8cc6891"
 SOURCE_DIR="xerces-c-$portVersion"
+PATCHES="xerces-c-$portVersion.patchset"
 
 ARCHITECTURES="!x86_gcc2 x86 x86_64"
 SECONDARY_ARCHITECTURES="!x86_gcc2 x86"
@@ -37,7 +38,6 @@ PROVIDES="
 REQUIRES="
 	haiku$secondaryArchSuffix
 	lib:libcrypto$secondaryArchSuffix
-	lib:libcurl$secondaryArchSuffix
 	lib:libiconv$secondaryArchSuffix
 	lib:libssl$secondaryArchSuffix
 	lib:libz$secondaryArchSuffix
@@ -55,7 +55,6 @@ REQUIRES_devel="
 BUILD_REQUIRES="
 	haiku${secondaryArchSuffix}_devel
 	devel:libcrypto$secondaryArchSuffix
-	devel:libcurl$secondaryArchSuffix
 	devel:libiconv$secondaryArchSuffix
 	devel:libssl$secondaryArchSuffix
 	devel:libz$secondaryArchSuffix
@@ -74,8 +73,8 @@ BUILD_PREREQUIRES="
 BUILD()
 {
 	autoreconf -fi
-	LDFLAGS="-lnetwork -lbsd" \
-		CFLAGS="-D_BSD_SOURCE" \
+
+	CFLAGS="-D_BSD_SOURCE" \
 		runConfigure ./configure
 
 	make $jobArgs

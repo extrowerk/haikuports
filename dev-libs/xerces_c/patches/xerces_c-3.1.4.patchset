@@ -1,0 +1,24 @@
+From 56fb89a8a4df9b6cba1ace954617f41a484d3469 Mon Sep 17 00:00:00 2001
+From: =?UTF-8?q?Zolt=C3=A1n=20Mizsei?= <zmizsei@extrowerk.com>
+Date: Sun, 25 Dec 2016 20:09:03 +0100
+Subject: [PATCH] Check for lnetwork
+
+---
+ m4/xerces_netaccessor_selection.m4 | 1 +
+ 1 file changed, 1 insertion(+)
+
+diff --git a/m4/xerces_netaccessor_selection.m4 b/m4/xerces_netaccessor_selection.m4
+index d379596..1d0e581 100644
+--- a/m4/xerces_netaccessor_selection.m4
++++ b/m4/xerces_netaccessor_selection.m4
+@@ -27,6 +27,7 @@ AC_DEFUN([XERCES_NETACCESSOR_SELECTION],
+ 
+ 	# Checks for libraries.
+ 	AC_CHECK_LIB([socket], [socket])
++	AC_CHECK_LIB([network], [socket])
+ 	AC_CHECK_LIB([nsl], [gethostbyname])
+ 
+ 	######################################################
+-- 
+2.10.2
+
