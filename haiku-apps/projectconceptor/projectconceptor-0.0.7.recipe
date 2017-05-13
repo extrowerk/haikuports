@@ -9,7 +9,7 @@ SOURCE_URI="https://github.com/Paradoxianer/ProjectConceptor/archive/v$portVersi
 CHECKSUM_SHA256="f260d8dcb71b0994625454e9bc673b34c9d527c9714715d8e59f3ab98d02aaa9"
 SOURCE_DIR="ProjectConceptor-$portVersion"
 
-ARCHITECTURES="x86_gcc2 x86 x86_64"
+ARCHITECTURES="x86_gcc2 x86 !x86_64"
 
 PROVIDES="
 	ProjectConceptor = $portVersion
