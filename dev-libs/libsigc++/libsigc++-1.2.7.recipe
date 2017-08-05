@@ -13,7 +13,8 @@ SOURCE_URI="http://ftp.gnome.org/pub/GNOME/sources/libsigc++/1.2/libsigc++-$port
 CHECKSUM_SHA256="c995a4623d9f71455d8c7d62307a13e68e0f8313f47adb7221421455bbdfcb98"
 PATCHES="libsigc++-$portVersion.patchset"
 
-ARCHITECTURES="x86_gcc2"
+ARCHITECTURES="!x86_gcc2 ?x86 x86_64"
+SECONDARY_ARCHITECTURES="?x86"
 
 PROVIDES="
 	libsigc++$secondaryArchSuffix = $portVersion
