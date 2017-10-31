@@ -1,4 +1,4 @@
-From b5d5c882b27a3304a17b651a8568bb1a52307108 Mon Sep 17 00:00:00 2001
+From 895586cb4b4a2226c8a400b770e036d7e819e2d2 Mon Sep 17 00:00:00 2001
 From: =?UTF-8?q?Zolt=C3=A1n=20Mizsei?= <zmizsei@extrowerk.com>
 Date: Wed, 9 Nov 2016 22:49:48 +0100
 Subject: Haiku /bin/open support
@@ -23,7 +23,7 @@ index e878435..3500849 100644
 2.14.2
 
 
-From dd9a8e92c8bdd66288553148c43654697c357969 Mon Sep 17 00:00:00 2001
+From 6401e1230efbebe444838a1ea9b77b5f06e5787f Mon Sep 17 00:00:00 2001
 From: Kurtis Rader <krader@skepticism.us>
 Date: Sun, 4 Jun 2017 21:01:26 -0700
 Subject: work around Haiku stdio bug
@@ -101,7 +101,7 @@ index 96d6d29..df4262e 100644
 2.14.2
 
 
-From 4669c6a01b11698c48b299de62105059bd539a03 Mon Sep 17 00:00:00 2001
+From de862a98ee93f8be709f8d2b7b6b92f7cd357e23 Mon Sep 17 00:00:00 2001
 From: =?UTF-8?q?Zolt=C3=A1n=20Mizsei?= <zmizsei@extrowerk.com>
 Date: Tue, 31 Oct 2017 08:25:27 +0100
 Subject: Posix_spawn is broken on Haiku.
@@ -123,6 +123,252 @@ index 0a82a45..d441fe9 100644
  
  class io_chain_t;
  class job_t;
+-- 
+2.14.2
+
+
+From 780bd0abd6f8ba0c7f4ecba0fb9bfd0559025711 Mon Sep 17 00:00:00 2001
+From: =?UTF-8?q?Zolt=C3=A1n=20Mizsei?= <zmizsei@extrowerk.com>
+Date: Tue, 31 Oct 2017 20:01:11 +0100
+Subject: Use user settings folder instead HOME
+
+
+diff --git a/share/completions/gradle.fish b/share/completions/gradle.fish
+index 6a57bb5..79e6f93 100644
+--- a/share/completions/gradle.fish
++++ b/share/completions/gradle.fish
+@@ -42,7 +42,12 @@ complete -c gradle -l exclude-task -s x -x -d 'Specify task to be excluded from
+ function __cache_or_get_gradle_completion
+   # Set up cache directory
+   if test -z $XDG_CACHE_HOME
+-    set XDG_CACHE_HOME $HOME/.cache/
++    switch (uname)
++        case 'Haiku*'
++            set XDG_CACHE_HOME $HOME/config/cache/
++        case '*'
++            set XDG_CACHE_HOME $HOME/.cache/
++    end
+   end
+   mkdir -m 700 -p $XDG_CACHE_HOME/gradle-completions
+ 
+diff --git a/share/config.fish b/share/config.fish
+index b63fe6b..750dc5b 100644
+--- a/share/config.fish
++++ b/share/config.fish
+@@ -63,13 +63,25 @@ end
+ # unless they already exist
+ #
+ 
+-set -l configdir ~/.config
++switch (uname)
++    case 'Haiku*'
++        set -l configdir ~/config/settings
++    case '*'
++        set -l configdir ~/.config
++end
+ 
+ if set -q XDG_CONFIG_HOME
+     set configdir $XDG_CONFIG_HOME
+ end
+ 
+-set -l userdatadir ~/.local/share
++
++
++switch (uname)
++    case 'Haiku*'
++        set -l userdatadir ~/config/non-packaged/data
++    case '*'
++        set -l userdatadir ~/.local/share
++end
+ 
+ if set -q XDG_DATA_HOME
+     set userdatadir $XDG_DATA_HOME
+diff --git a/share/functions/__fish_config_interactive.fish b/share/functions/__fish_config_interactive.fish
+index cf34936..e5499cf 100644
+--- a/share/functions/__fish_config_interactive.fish
++++ b/share/functions/__fish_config_interactive.fish
+@@ -12,12 +12,23 @@ function __fish_config_interactive -d "Initializations that should be performed
+     set -g __fish_config_interactive_done
+ 
+     # Set the correct configuration directory
+-    set -l configdir ~/.config
++    switch (uname)
++        case 'Haiku*'
++            set -l configdir ~/config/settings
++        case '*'
++            set -l configdir ~/.config
++    end
++    
+     if set -q XDG_CONFIG_HOME
+         set configdir $XDG_CONFIG_HOME
+     end
+     # Set the correct user data directory
+-    set -l userdatadir ~/.local/share
++    switch (uname)
++        case 'Haiku*'
++            set -l userdatadir ~/config/non-packaged/data
++        case '*'
++            set -l userdatadir ~/.local/share
++    end
+     if set -q XDG_DATA_HOME
+         set userdatadir $XDG_DATA_HOME
+     end
+@@ -121,7 +132,13 @@ function __fish_config_interactive -d "Initializations that should be performed
+             # We don't want to call `fish -c` since that is unnecessary and sources config.fish again.
+             # Hence we'll call python directly.
+             # c_m_p.py should work with any python version.
+-            set -l update_args -B $__fish_datadir/tools/create_manpage_completions.py --manpath --cleanup-in '~/.config/fish/completions' --cleanup-in '~/.config/fish/generated_completions'
++            switch (uname)
++                case 'Haiku*'
++                    set -l update_args -B $__fish_datadir/tools/create_manpage_completions.py --manpath --cleanup-in '~/config/settings/fish/completions' --cleanup-in '~/config/settings/fish/fish/generated_completions'
++                case '*'
++                    set -l update_args -B $__fish_datadir/tools/create_manpage_completions.py --manpath --cleanup-in '~/.config/fish/completions' --cleanup-in '~/.config/fish/generated_completions'
++            end
++            
+             if command -qs python3
+                 python3 $update_args >/dev/null ^/dev/null &
+             else if command -qs python2
+diff --git a/share/functions/__fish_print_packages.fish b/share/functions/__fish_print_packages.fish
+index 210884a..ba4f100 100644
+--- a/share/functions/__fish_print_packages.fish
++++ b/share/functions/__fish_print_packages.fish
+@@ -14,7 +14,13 @@ function __fish_print_packages
+ 
+     # Set up cache directory
+     if test -z "$XDG_CACHE_HOME"
+-        set XDG_CACHE_HOME $HOME/.cache
++
++        switch (uname)
++          case 'Haiku*'
++              set XDG_CACHE_HOME $HOME/config/cache
++          case '*'
++              set XDG_CACHE_HOME $HOME/.cache
++          end
+     end
+     mkdir -m 700 -p $XDG_CACHE_HOME
+ 
+diff --git a/share/functions/__fish_print_xdg_mimeapps.fish b/share/functions/__fish_print_xdg_mimeapps.fish
+index f5b2314..797d754 100644
+--- a/share/functions/__fish_print_xdg_mimeapps.fish
++++ b/share/functions/__fish_print_xdg_mimeapps.fish
+@@ -1,4 +1,3 @@
+ function __fish_print_xdg_mimeapps --description 'Print xdg mime applications'
+     find ~/.local/share/applications/ /usr/share/applications/ -name \*.desktop \( -type f -or -type l \) -printf '%P\n' | sort -u
+-
+ end
+diff --git a/share/functions/__fish_set_locale.fish b/share/functions/__fish_set_locale.fish
+index 1950dab..2c4bec2 100644
+--- a/share/functions/__fish_set_locale.fish
++++ b/share/functions/__fish_set_locale.fish
+@@ -55,7 +55,12 @@ function __fish_set_locale
+     #
+     # NOTE: Slackware puts the locale in /etc/profile.d/lang.sh, which we can't use because it's a
+     # full POSIX-shell script.
+-    set -l user_cfg_dir (set -q XDG_CONFIG_HOME; and echo $XDG_CONFIG_HOME; or echo ~/.config)
++    switch (uname)
++    case 'Haiku*'
++        set -l user_cfg_dir (set -q XDG_CONFIG_HOME; and echo $XDG_CONFIG_HOME; or echo ~/config/settings)
++    case '*'
++        set -l user_cfg_dir (set -q XDG_CONFIG_HOME; and echo $XDG_CONFIG_HOME; or echo ~/.config)
++    end
+     for f in $user_cfg_dir/locale.conf /etc/locale.conf /etc/env.d/02locale /etc/sysconfig/i18n
+         if test -r $f
+             while read -l kv
+diff --git a/share/functions/fish_update_completions.fish b/share/functions/fish_update_completions.fish
+index 1369273..dcf924f 100644
+--- a/share/functions/fish_update_completions.fish
++++ b/share/functions/fish_update_completions.fish
+@@ -1,6 +1,11 @@
+ function fish_update_completions --description "Update man-page based completions"
+     # Clean up old paths
+-    set -l update_args -B $__fish_datadir/tools/create_manpage_completions.py --manpath --cleanup-in '~/.config/fish/completions' --cleanup-in '~/.config/fish/generated_completions' --progress
++    switch (uname)
++    case 'Haiku*'
++        set -l update_args -B $__fish_datadir/tools/create_manpage_completions.py --manpath --cleanup-in '~/config/settings/fish/completions' --cleanup-in '~/config/settings/fish/generated_completions' --progress
++    case '*'
++        set -l update_args -B $__fish_datadir/tools/create_manpage_completions.py --manpath --cleanup-in '~/.config/fish/completions' --cleanup-in '~/.config/fish/generated_completions' --progress
++    end
+     if command -qs python3
+         python3 $update_args
+     else if command -qs python2
+diff --git a/share/functions/funcsave.fish b/share/functions/funcsave.fish
+index cbd186e..e63a503 100644
+--- a/share/functions/funcsave.fish
++++ b/share/functions/funcsave.fish
+@@ -15,7 +15,12 @@ function funcsave --description "Save the current definition of all specified fu
+ 
+     set -l res 0
+ 
+-    set -l configdir ~/.config
++    switch (uname)
++        case 'Haiku*'
++            set -l configdir ~/config/settings
++        case '*'
++            set -l configdir ~/.config
++    end
+     if set -q XDG_CONFIG_HOME
+         set configdir $XDG_CONFIG_HOME
+     end
+diff --git a/share/tools/create_manpage_completions.py b/share/tools/create_manpage_completions.py
+index fb63f8f..5a1546e 100755
+--- a/share/tools/create_manpage_completions.py
++++ b/share/tools/create_manpage_completions.py
+@@ -954,7 +954,7 @@ if __name__ == "__main__":
+     if not WRITE_TO_STDOUT and not output_directory:
+         # Default to ~/.local/share/fish/generated_completions/
+         # Create it if it doesn't exist
+-        xdg_data_home = os.getenv('XDG_DATA_HOME', '~/.local/share')
++        xdg_data_home = os.getenv('XDG_DATA_HOME', '~/config/non-packaged/data')
+         output_directory = os.path.expanduser(xdg_data_home + '/fish/generated_completions/')
+         try:
+             os.makedirs(output_directory)
+diff --git a/share/tools/web_config/webconfig.py b/share/tools/web_config/webconfig.py
+index 77d8017..0a63ed4 100755
+--- a/share/tools/web_config/webconfig.py
++++ b/share/tools/web_config/webconfig.py
+@@ -1104,7 +1104,7 @@ url = 'http://localhost:%d/%s/%s' % (PORT, authkey, initial_tab)
+ if 'XDG_CACHE_HOME' in os.environ:
+     dirname = os.path.expanduser(os.path.expandvars('$XDG_CACHE_HOME/fish/'))
+ else:
+-    dirname = os.path.expanduser('~/.cache/fish/')
++    dirname = os.path.expanduser('~/config/cache/fish/')
+ 
+ os.umask(0o0077)
+ try:
+diff --git a/src/path.cpp b/src/path.cpp
+index e76ed27..f68af6e 100644
+--- a/src/path.cpp
++++ b/src/path.cpp
+@@ -263,7 +263,11 @@ static void path_create(wcstring &path, const wcstring &xdg_var, const wcstring
+     } else {
+         const env_var_t home = env_get_string(L"HOME", ENV_GLOBAL | ENV_EXPORT);
+         if (!home.missing_or_empty()) {
+-            path = home + (which_dir == L"config" ? L"/.config/fish" : L"/.local/share/fish");
++        	#ifndef __HAIKU__
++                path = home + (which_dir == L"config" ? L"/.config/fish" : L"/.local/share/fish");
++            #else
++                path = home + (which_dir == L"config" ? L"/config/settings/fish" : L"/config/non-packaged/data/fish");
++            #endif
+             if (create_directory(path) != -1) {
+                 path_done = true;
+             } else {
+diff --git a/src/reader.cpp b/src/reader.cpp
+index df4262e..817a3c3 100644
+--- a/src/reader.cpp
++++ b/src/reader.cpp
+@@ -2064,7 +2064,11 @@ void reader_import_history_if_necessary(void) {
+         // (AFAIK it doesn't have to be exported), and to really get this right we ought to ask bash
+         // itself. But this is better than nothing.
+         const env_var_t var = env_get_string(L"HISTFILE");
+-        wcstring path = (var.missing() ? L"~/.bash_history" : var);
++        #ifdef __HAIKU__
++            wcstring path = (var.missing() ? L"~/config/settings/bash_history" : var);
++        #else
++            wcstring path = (var.missing() ? L"~/.bash_history" : var);
++        #endif
+         expand_tilde(path);
+         FILE *f = wfopen(path, "r");
+         if (f) {
 -- 
 2.14.2
 
