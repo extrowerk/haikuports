@@ -1,24 +1,25 @@
 SUMMARY="Implementation of the codec specified in the JPEG-2000 Part-1 standard"
-DESCRIPTION="
-The JasPer Project is an open-source initiative to provide a free \
-software-based reference implementation of the codec specified in the \
+DESCRIPTION="The JasPer Project is an open-source initiative to provide a \
+free software-based reference implementation of the codec specified in the \
 JPEG-2000 Part-1 standard. More details about this software can be found in \
-the JasPer Software Reference Manual.
-"
+the JasPer Software Reference Manual."
 HOMEPAGE="http://www.ece.uvic.ca/~frodo/jasper/"
-COPYRIGHT="1999-2007 Michael D. Adams"
+COPYRIGHT="1999-2017 Michael D. Adams"
 LICENSE="JasPer v2"
 REVISION="1"
 SOURCE_URI="http://www.ece.uvic.ca/~frodo/jasper/software/jasper-$portVersion.tar.gz"
-CHECKSUM_SHA256="d5082e14a50a7e461863991a8e932fc06a1b2f2688108c4478c400c39e257ebb"
+CHECKSUM_SHA256="2ae7e9d3ba189ddcd4231e7255348d3144757d5c2ff8dd853f37e0df783925c0"
 SOURCE_DIR="jasper-$portVersion"
 
 ARCHITECTURES="x86_gcc2 x86 x86_64"
 SECONDARY_ARCHITECTURES="x86_gcc2 x86"
 
+libVersion="1.0.0"
+libVersionCompat="$libVersion compat >= ${libVersion%%.*}"
+
 PROVIDES="
-	jasper1$secondaryArchSuffix = $portVersion compat >= 1.0.0
-	lib:libjasper$secondaryArchSuffix = 1.0.0 compat >= 1
+	jasper1$secondaryArchSuffix = $portVersion
+	lib:libjasper$secondaryArchSuffix = $libVersionCompat
 	"
 REQUIRES="
 	haiku$secondaryArchSuffix
@@ -26,7 +27,7 @@ REQUIRES="
 
 PROVIDES_devel="
 	jasper1${secondaryArchSuffix}_devel = $portVersion
-	devel:libjasper$secondaryArchSuffix = 1.0.0 compat >=1
+	devel:libjasper$secondaryArchSuffix = $libVersionCompat
 	"
 REQUIRES_devel="
 	jasper1$secondaryArchSuffix == $portVersion base
@@ -57,23 +58,24 @@ BUILD_REQUIRES="
 	haiku${secondaryArchSuffix}_devel
 	"
 BUILD_PREREQUIRES="
+	cmd:autoreconf
+	cmd:chmod
 	cmd:gcc$secondaryArchSuffix
 	cmd:ld$secondaryArchSuffix
+	cmd:libtoolize$secondaryArchSuffix
 	cmd:make
 	cmd:mkdepend
-	cmd:libtoolize$secondaryArchSuffix
-	cmd:aclocal
-	cmd:autoconf
-	cmd:automake
-	cmd:chmod
 	"
+
+defineDebugInfoPackage jasper1$secondaryArchSuffix \
+	$libDir/libjasper.so.$libVersion
 
 BUILD()
 {
 	autoreconf -fi
 	chmod +x ./configure
 	runConfigure ./configure --enable-shared
-	make
+	make $jobArgs
 }
 
 INSTALL()
@@ -83,6 +85,8 @@ INSTALL()
 	rm $libDir/libjasper.la
 
 	prepareInstalledDevelLibs libjasper
+
+	fixPkgconfig
 
 	# devel package
 	packageEntries devel \
