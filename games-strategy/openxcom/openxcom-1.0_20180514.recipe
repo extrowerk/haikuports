@@ -3,7 +3,11 @@ DESCRIPTION="OpenXcom is an open-source clone of the original UFO: Enemy \
 Unknown (X-Com: UFO Defense in USA), licensed under the GPL and written in \
 C++ / SDL. It was originally founded by SupSuper in February 2010, and has \
 since grown into a small development team surrounded by a very supporting \
-community."
+community.
+
+The game requires the original XCOM or TFTD datafiles.
+Copy them to: `finddir B_USER_NONPACKAGED_DATA_DIRECTORY`/openxcom/UFO or \
+`finddir B_USER_NONPACKAGED_DATA_DIRECTORY`/openxcom/TFTD"
 HOMEPAGE="https://openxcom.org/"
 COPYRIGHT="2010-2018 OpenXcom Developers"
 LICENSE="GNU GPL v3"
