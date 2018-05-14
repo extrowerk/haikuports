@@ -24,6 +24,7 @@ PROVIDES="
 	"
 REQUIRES="
 	haiku$secondaryArchSuffix
+	lib:libexecinfo$secondaryArchSuffix
 	lib:libgl$secondaryArchSuffix
 	lib:libglu$secondaryArchSuffix
 	lib:libsdl$secondaryArchSuffix
@@ -35,6 +36,7 @@ REQUIRES="
 
 BUILD_REQUIRES="
 	haiku${secondaryArchSuffix}_devel
+	devel:libexecinfo$secondaryArchSuffix
 	devel:libgl$secondaryArchSuffix
 	devel:libglu$secondaryArchSuffix
 	devel:libsdl$secondaryArchSuffix
