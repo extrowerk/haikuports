@@ -30,7 +30,7 @@ REQUIRES="
 	lib:libsdl_gfx$secondaryArchSuffix
 	lib:libsdl_image$secondaryArchSuffix
 	lib:libsdl_mixer$secondaryArchSuffix
-	lib:libyaml_cpp$secondaryArchSuffix
+	lib:libyaml_cpp$secondaryArchSuffix >= 0.5
 	"
 
 BUILD_REQUIRES="
@@ -41,7 +41,7 @@ BUILD_REQUIRES="
 	devel:libsdl_gfx$secondaryArchSuffix
 	devel:libsdl_image$secondaryArchSuffix
 	devel:libsdl_mixer$secondaryArchSuffix
-	devel:libyaml_cpp$secondaryArchSuffix
+	devel:libyaml_cpp$secondaryArchSuffix >= 0.5
 	"
 BUILD_PREREQUIRES="
 	cmd:cmake
