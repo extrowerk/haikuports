@@ -12,14 +12,14 @@ srcGitRev="57a10ae13866f80894463b3f92dd9a2fb110c562"
 SOURCE_URI="https://github.com/SupSuper/OpenXcom/archive/$srcGitRev.tar.gz"
 CHECKSUM_SHA256="8697c6d647c8890f293554722e3476ab6e4fe79e21a21961289ba76df3513f44"
 SOURCE_DIR="OpenXcom-$srcGitRev"
-#PATCHES="openxcom-$portVersion.patchset" #All previous patches are upstreamed
+PATCHES="openxcom-$portVersion.patchset"
 ADDITIONAL_FILES="openxcom.rdef"
 
 ARCHITECTURES="!x86_gcc2 ?x86_64 ?x86"
 SECONDARY_ARCHITECTURES="x86"
 
 PROVIDES="
-	openxcom = $portVersion
+	openxcom$secondaryArchSuffix = $portVersion
 	app:OpenXcom
 	"
 REQUIRES="
@@ -55,18 +55,38 @@ BUILD_PREREQUIRES="
 GLOBAL_WRITABLE_FILES="
 	settings/OpenXcom directory keep-old
 	"
+
+defineDebugInfoPackage openxcom$secondaryArchSuffix \
+	"$appsDir"/OpenXcom
+
 BUILD()
 {
-	cmake .
+	cmake . \
+		$cmakeDirArgs
+
 	make $jobArgs
 }
 
 INSTALL()
 {
+	make install
+
+	# binary got installed in $binDir
+	# but as it got GUI, let's move it to $appsDir
 	mkdir -p $appsDir
-	mkdir -p $settingsDir
-	cp $sourceDir/bin/openxcom $appsDir/OpenXcom
-	cp -r $sourceDir/bin/data $settingsDir/OpenXcom
-	addResourcesToBinaries $portDir/additional-files/openxcom.rdef $appsDir/OpenXcom
+	mv $binDir/openxcom $appsDir/OpenXcom
+
+	# and delete the useless $binDir, and stuff
+	rm -rf $binDir
+	rm -rf $dataDir/{applications,icons}
+
+	# create a settings dir
+	mkdir -p $settingsDir/OpenXcom
+
+	# let's add the icons
+	addResourcesToBinaries \
+		$portDir/additional-files/openxcom.rdef $appsDir/OpenXcom
+
+	# and let's create an icon in the Deskbar
 	addAppDeskbarSymlink $appsDir/OpenXcom OpenXcom
 }

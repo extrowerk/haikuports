@@ -1,2 +1,24 @@
-# Previous patches are upstreamed, nothing required here, this is just for you and for information.
-# If you want to add new patches ,they should come here.
+From d3846bb2f977f7197f51e0ab549fdd01e382449d Mon Sep 17 00:00:00 2001
+From: =?UTF-8?q?Zolt=C3=A1n=20Mizsei?= <zmizsei@extrowerk.com>
+Date: Mon, 14 May 2018 19:19:27 +0200
+Subject: Haiku: set linker flags
+
+
+diff --git a/CMakeLists.txt b/CMakeLists.txt
+index a6761bb..4062c34 100644
+--- a/CMakeLists.txt
++++ b/CMakeLists.txt
+@@ -186,6 +186,10 @@ if ( BUILD_PACKAGE )
+ )
+ endif()
+ 
++if(HAIKU)
++  set(CMAKE_EXE_LINKER_FLAGS "-lexecinfo -lnetwork")
++endif()
++
+ if ( NOT WIN32 )
+   install(FILES "${CMAKE_SOURCE_DIR}/res/linux/openxcom.desktop"
+     DESTINATION "${CMAKE_INSTALL_FULL_DATAROOTDIR}/applications")
+-- 
+2.16.2
+
