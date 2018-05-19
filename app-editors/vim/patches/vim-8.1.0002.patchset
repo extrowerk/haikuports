@@ -1,4 +1,4 @@
-From cffc035f69371fff65bc4c956b5191baa92e95bc Mon Sep 17 00:00:00 2001
+From 916b4ef86ea20824be26bd1ca53ae7ba702ffbe0 Mon Sep 17 00:00:00 2001
 From: =?UTF-8?q?Zolt=C3=A1n=20Mizsei?= <zmizsei@extrowerk.com>
 Date: Fri, 21 Jul 2017 17:03:57 +0200
 Subject: Applied patchset
@@ -6875,7 +6875,7 @@ index 8b69cc4..d97151a 100644
  # define DEFAULT_TERM	(char_u *)"dumb"
  #endif
 diff --git a/src/ui.c b/src/ui.c
-index 8e3f0de..76aff37 100644
+index 8e3f0de..4510374 100644
 --- a/src/ui.c
 +++ b/src/ui.c
 @@ -3206,8 +3206,8 @@ mouse_find_win(int *rowp, int *colp UNUSED)
@@ -6954,6 +6954,51 @@ index 0a4a490..c2bb62c 100644
  # define mch_errmsg(str)	fprintf(stderr, "%s", (str))
  # define display_errors()	fflush(stderr)
  # define mch_msg(str)		printf("%s", (str))
+-- 
+2.16.2
+
+
+From 0c14e34be3a17817c0f04a03906db72cf9c7cc62 Mon Sep 17 00:00:00 2001
+From: =?UTF-8?q?Zolt=C3=A1n=20Mizsei?= <zmizsei@extrowerk.com>
+Date: Sat, 19 May 2018 15:31:53 +0200
+Subject: Build fix, pls review it.
+
+
+diff --git a/src/gui_haiku.cc b/src/gui_haiku.cc
+index ef0ec7d..aec9b41 100644
+--- a/src/gui_haiku.cc
++++ b/src/gui_haiku.cc
+@@ -5132,6 +5132,8 @@ gui_mch_setmouse(int x, int y)
+ 	/* TODO */
+ }
+ 
++#if 0
++/* FIXME, not working on Haiku(
+ #ifdef FEAT_MBYTE_IME
+ 	void
+ im_set_position(int row, int col)
+@@ -5163,6 +5165,7 @@ im_get_status()
+ 	//TODO:
+ 	return(1);
+ }
++#endif
+ #endif
+ 
+ 	void
+diff --git a/src/ui.c b/src/ui.c
+index 4510374..5621f81 100644
+--- a/src/ui.c
++++ b/src/ui.c
+@@ -3254,7 +3254,8 @@ get_fpos_of_mouse(pos_T *mpos)
+ #if defined(FEAT_GUI_MOTIF) || defined(FEAT_GUI_GTK) || defined(FEAT_GUI_MAC) \
+ 	|| defined(FEAT_GUI_ATHENA) || defined(FEAT_GUI_MSWIN) \
+ 	|| defined(FEAT_GUI_PHOTON) || defined(FEAT_BEVAL) \
+-	|| defined(FEAT_TERM_POPUP_MENU) || defined(PROTO)
++	|| defined(FEAT_TERM_POPUP_MENU) || defined(PROTO) \
++	|| defined(FEAT_GUI_HAIKU)
+ /*
+  * Convert a virtual (screen) column to a character column.
+  * The first column is one.
 -- 
 2.16.2
 
