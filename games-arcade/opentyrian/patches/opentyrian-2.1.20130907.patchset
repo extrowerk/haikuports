@@ -1,4 +1,4 @@
-From d1ffdc61ccb3c8eccbb0c938e8fafa4f8c3dc3f7 Mon Sep 17 00:00:00 2001
+From 7cccf1a3f59f62c820071e6e325f8dfad776f253 Mon Sep 17 00:00:00 2001
 From: Mikolaj 'lich' Halber <lich@opmbx.org>
 Date: Tue, 15 Dec 2015 15:06:31 +0000
 Subject: Added Haiku support
@@ -41,5 +41,30 @@ index 3cffa49..d0f85a4 100644
  
  	printf("\nWelcome to... >> %s %s <<\n\n", opentyrian_str, opentyrian_version);
 -- 
-2.2.2
+2.16.4
 
+
+From 08a7515bd737c5efb52e3d43ce9ff42defd3cadc Mon Sep 17 00:00:00 2001
+From: =?UTF-8?q?Zolt=C3=A1n=20Mizsei?= <zmizsei@extrowerk.com>
+Date: Wed, 22 Aug 2018 19:54:56 +0200
+Subject: Patch from gentoo portage: cflag-idiocy
+
+
+diff --git a/Makefile b/Makefile
+index 5d1a683..1fbdb2c 100644
+--- a/Makefile
++++ b/Makefile
+@@ -21,11 +21,6 @@ OBJS := $(SRCS:src/%.c=obj/%.o)
+ 
+ # FLAGS ####################################################
+ 
+-ifneq ($(MAKECMDGOALS), release)
+-    EXTRA_CFLAGS += -g3 -O0 -Werror
+-else
+-    EXTRA_CFLAGS += -g0 -O2 -DNDEBUG
+-endif
+ EXTRA_CFLAGS += -MMD -pedantic -Wall -Wextra -Wno-missing-field-initializers
+ ifeq ($(WITH_NETWORK), true)
+     EXTRA_CFLAGS += -DWITH_NETWORK
+-- 
+2.16.4
