@@ -34,7 +34,7 @@ REQUIRES="
 	lib:libavutil$secondaryArchSuffix
 	lib:libbluray$secondaryArchSuffix
 	lib:libcdio$secondaryArchSuffix
-	lib:libcdio_paranoia$secondaryArchSuffix
+#	lib:libcdio_paranoia$secondaryArchSuffix
 	lib:libdvdnav$secondaryArchSuffix
 	lib:libdvdread$secondaryArchSuffix
 	lib:libiconv$secondaryArchSuffix
@@ -66,7 +66,7 @@ BUILD_REQUIRES="
 	devel:libavformat$secondaryArchSuffix
 	devel:libavutil$secondaryArchSuffix
 	devel:libbluray$secondaryArchSuffix
-	devel:libcdio_paranoia$secondaryArchSuffix
+#	devel:libcdio_paranoia$secondaryArchSuffix
 	devel:libdvdcss$secondaryArchSuffix
 	devel:libdvdnav$secondaryArchSuffix
 	devel:libdvdread$secondaryArchSuffix
