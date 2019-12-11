@@ -116,7 +116,6 @@ BUILD()
 		--disable-static-build \
 		--enable-libmpv-shared \
 		--enable-sdl2 \
-		--enable-cdda \
 		--bindir=$binDir \
 		--confdir=$settingsDir/mpv \
 		--disable-gl \
