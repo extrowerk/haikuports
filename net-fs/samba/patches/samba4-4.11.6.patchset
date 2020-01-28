@@ -1,0 +1,51 @@
+From d5d5928d60bc86fca8837d25c062e1fd37357495 Mon Sep 17 00:00:00 2001
+From: =?UTF-8?q?Zolt=C3=A1n=20Mizsei?= <zmizsei@extrowerk.com>
+Date: Tue, 28 Jan 2020 19:21:42 +0100
+Subject: applying patch samba-3.6.23.patch
+
+
+diff --git a/source3/utils/net_time.c b/source3/utils/net_time.c
+index 5e6cf2e..f39cc20 100644
+--- a/source3/utils/net_time.c
++++ b/source3/utils/net_time.c
+@@ -99,6 +99,14 @@ int net_time_usage(struct net_context *c, int argc, const char **argv)
+ 	return -1;
+ }
+ 
++#ifdef __HAIKU__
++int settimeofday(struct timeval *tv, struct timezone *tz)
++{
++	set_real_time_clock(tv->tv_sec);
++	return(0);
++}
++#endif //__HAIKU__
++
+ /* try to set the system clock */
+ static int net_time_set(struct net_context *c, int argc, const char **argv)
+ {
+-- 
+2.24.1
+
+
+From adccf54b9705aa6044e890e79073d55da0e5a398 Mon Sep 17 00:00:00 2001
+From: =?UTF-8?q?Zolt=C3=A1n=20Mizsei?= <zmizsei@extrowerk.com>
+Date: Tue, 28 Jan 2020 19:23:02 +0100
+Subject: Haiku build fix
+
+
+diff --git a/lib/replace/system/time.h b/lib/replace/system/time.h
+index 00f0d7f..508dcc5 100644
+--- a/lib/replace/system/time.h
++++ b/lib/replace/system/time.h
+@@ -85,7 +85,7 @@ int rep_clock_gettime(clockid_t clk_id, struct timespec *tp);
+  * this prevents them from being compared against in a preprocessor directive.
+  * The following ...IS_* macros can be used to check which clock is in use.
+  */
+-#if defined(CLOCK_MONOTONIC)
++#if defined(CLOCK_MONOTONIC) && !defined(__HAIKU__)
+ #define CUSTOM_CLOCK_MONOTONIC CLOCK_MONOTONIC
+ #define CUSTOM_CLOCK_MONOTONIC_IS_MONOTONIC
+ #elif defined(CLOCK_HIGHRES)
+-- 
+2.24.1
+
