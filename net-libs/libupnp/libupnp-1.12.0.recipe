@@ -11,7 +11,7 @@ COPYRIGHT="2000-2003 Intel Corporation
 LICENSE="BSD (3-clause)"
 REVISION="1"
 SOURCE_URI="https://github.com/pupnp/pupnp/archive/release-$portVersion.tar.gz"
-CHECKSUM_SHA256="de04f501ccae0f776c5a3b6878ef26b84631bc1c10183822794508d912cd9e53"
+CHECKSUM_SHA256="0de53571f1e5180a362a5d1652bf7f2e48d66f187ea71a69cf20eb38fbcdeb4f"
 SOURCE_DIR="pupnp-release-$portVersion"
 PATCHES="libupnp-$portVersion.patchset"
 
@@ -21,7 +21,7 @@ SECONDARY_ARCHITECTURES="x86"
 PROVIDES="
 	libupnp$secondaryArchSuffix = $portVersion
 	lib:libixml$secondaryArchSuffix = 11.0.0 compat >= 11
-	lib:libupnp$secondaryArchSuffix = 15.0.1 compat >= 15
+	lib:libupnp$secondaryArchSuffix = 16.0.0 compat >= 16
 	"
 REQUIRES="
 	haiku$secondaryArchSuffix
@@ -30,7 +30,7 @@ REQUIRES="
 PROVIDES_devel="
 	libupnp${secondaryArchSuffix}_devel = $portVersion
 	devel:libixml$secondaryArchSuffix = 11.0.0 compat >= 11
-	devel:libupnp$secondaryArchSuffix = 15.0.1 compat >= 15
+	devel:libupnp$secondaryArchSuffix = 16.0.0 compat >= 16
 	"
 REQUIRES_devel="
 	libupnp$secondaryArchSuffix == $portVersion base
@@ -52,7 +52,8 @@ BUILD_PREREQUIRES="
 BUILD()
 {
 	autoreconf -fi
-	runConfigure ./configure
+	LDFLAGS="-lnetwork" runConfigure ./configure \
+		--enable-reuseaddr
 	make
 }
 
