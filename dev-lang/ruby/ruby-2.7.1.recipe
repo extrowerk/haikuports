@@ -80,7 +80,6 @@ BUILD_PREREQUIRES="
 	cmd:libtoolize$secondaryArchSuffix
 	cmd:make
 	cmd:pkg_config$secondaryArchSuffix
-	cmd:ruby
 	"
 
 defineDebugInfoPackage ruby$secondaryArchSuffix \
