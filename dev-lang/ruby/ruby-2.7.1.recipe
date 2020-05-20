@@ -10,12 +10,12 @@ imperative. It also has a dynamic type system and automatic memory \
 management. Therefore, it is similar in varying degrees to, Smalltalk, \
 Python, Perl, Lisp, Dylan, and CLU."
 HOMEPAGE="https://www.ruby-lang.org/"
-COPYRIGHT="1993-2019 Yukihiro Matsumoto"
+COPYRIGHT="1993-2020 Yukihiro Matsumoto"
 LICENSE="Ruby
 	BSD (3-clause)"
-REVISION="2"
+REVISION="1"
 SOURCE_URI="https://cache.ruby-lang.org/pub/ruby/${portVersion%.*}/ruby-$portVersion.tar.xz"
-CHECKSUM_SHA256="27d350a52a02b53034ca0794efe518667d558f152656c2baaf08f3d0c8b02343"
+CHECKSUM_SHA256="b224f9844646cc92765df8288a46838511c1cec5b550d8874bd4686a904fcee7"
 PATCHES="ruby-$portVersion.patchset"
 
 ARCHITECTURES="!x86_gcc2 x86 x86_64"
@@ -80,6 +80,7 @@ BUILD_PREREQUIRES="
 	cmd:libtoolize$secondaryArchSuffix
 	cmd:make
 	cmd:pkg_config$secondaryArchSuffix
+	cmd:ruby
 	"
 
 defineDebugInfoPackage ruby$secondaryArchSuffix \
