@@ -25,8 +25,8 @@ PROVIDES="
 	"
 REQUIRES="
 	haiku
-	lib:libhistory
-	lib:libreadline
+	lib:libhistory >= 8.1
+	lib:libreadline >= 8.1
 	lib:libncursesw
 	lib:libintl
 	lib:libiconv
@@ -34,8 +34,8 @@ REQUIRES="
 
 BUILD_REQUIRES="
 	haiku_devel
-	devel:libhistory >= 8
-	devel:libreadline >= 8
+	devel:libhistory >= 8.1
+	devel:libreadline >= 8.1
 	devel:libncursesw
 	devel:libintl
 	"
