@@ -1,41 +1,44 @@
-From 279155468a862f4d358d01c5b8a084b40a700d4b Mon Sep 17 00:00:00 2001
-From: =?UTF-8?q?Zolt=C3=A1n=20Mizsei?= <zmizsei@extrowerk.com>
-Date: Sun, 5 May 2019 11:57:46 +0200
-Subject: We don't allow unsetting O_NONBLOCK or O_NDELAY on packaged FS
+From a3fb803a57f327d8c04a75235f50bd767ab41fa6 Mon Sep 17 00:00:00 2001
+From: Nobuyoshi Nakada <nobu@ruby-lang.org>
+Date: Tue, 15 Dec 2020 23:17:23 +0200
+Subject: Ignore failure on unsupported fcntl to drop non-blocking mode
 
 
 diff --git a/ruby.c b/ruby.c
-index 7903f58..0a17782 100644
+index 96d8f75..35f77dd 100644
 --- a/ruby.c
 +++ b/ruby.c
-@@ -2090,10 +2090,10 @@ open_load_file(VALUE fname_v, int *xflag)
- 	int fd;
- 	/* open(2) may block if fname is point to FIFO and it's empty. Let's
- 	   use O_NONBLOCK. */
--#if defined O_NONBLOCK && HAVE_FCNTL && !(O_NONBLOCK & O_ACCMODE)
-+#if defined O_NONBLOCK && HAVE_FCNTL && !(O_NONBLOCK & O_ACCMODE) && !defined(__HAIKU__)
- 	/* TODO: fix conflicting O_NONBLOCK in ruby/win32.h */
- # define MODE_TO_LOAD (O_RDONLY | O_NONBLOCK)
--#elif defined O_NDELAY && HAVE_FCNTL && !(O_NDELAY & O_ACCMODE)
-+#elif defined O_NDELAY && HAVE_FCNTL && !(O_NDELAY & O_ACCMODE) && !defined(__HAIKU__)
- # define MODE_TO_LOAD (O_RDONLY | O_NDELAY)
- #else
- # define MODE_TO_LOAD (O_RDONLY)
+@@ -2136,9 +2136,13 @@ open_load_file(VALUE fname_v, int *xflag)
+ 	rb_update_max_fd(fd);
+ 
+ #if defined HAVE_FCNTL && MODE_TO_LOAD != O_RDONLY
++# ifdef ENOTSUP
++#   define IS_SUPPORTED_OP(e) ((e) != ENOTSUP)
++# else
++#   define IS_SUPPORTED_OP(e) ((void)(e), 1)
++# endif
+ 	/* disabling O_NONBLOCK */
+-	if (fcntl(fd, F_SETFL, 0) < 0) {
+-	    e = errno;
++	if (fcntl(fd, F_SETFL, 0) < 0 && IS_SUPPORTED_OP(e = errno)) {
+ 	    (void)close(fd);
+ 	    rb_load_fail(fname_v, strerror(e));
+ 	}
 -- 
-2.26.0
+2.28.0
 
 
-From 6351154529c5e1da2ad33f6ab43544ce3953075c Mon Sep 17 00:00:00 2001
+From 33ec752f4c12a5f3cd1eeb17be899bed64564470 Mon Sep 17 00:00:00 2001
 From: =?UTF-8?q?Zolt=C3=A1n=20Mizsei?= <zmizsei@extrowerk.com>
 Date: Sun, 5 May 2019 15:35:20 +0200
 Subject: Test fix for Haiku
 
 
 diff --git a/test/fiddle/helper.rb b/test/fiddle/helper.rb
-index 57ded49..8a33200 100644
+index 73f6f78..ba51c22 100644
 --- a/test/fiddle/helper.rb
 +++ b/test/fiddle/helper.rb
-@@ -100,6 +100,18 @@ when /aix/
+@@ -99,6 +99,18 @@ when /aix/
        end
      end
    end
@@ -55,20 +58,20 @@ index 57ded49..8a33200 100644
    libc_so = ARGV[0] if ARGV[0] && ARGV[0][0] == ?/
    libm_so = ARGV[1] if ARGV[1] && ARGV[1][0] == ?/
 -- 
-2.26.0
+2.28.0
 
 
-From b584031112ad887a1cb4a38e4a6d0b4c0e28e306 Mon Sep 17 00:00:00 2001
+From 075c64842168cfb5535a1b04b6d729bfeb7fab75 Mon Sep 17 00:00:00 2001
 From: =?UTF-8?q?Zolt=C3=A1n=20Mizsei?= <zmizsei@extrowerk.com>
 Date: Wed, 25 Dec 2019 19:53:24 +0100
 Subject: Add Haiku to the context support list
 
 
 diff --git a/configure.ac b/configure.ac
-index f1ed36b..fc28564 100644
+index 6766df2..ca10de2 100644
 --- a/configure.ac
 +++ b/configure.ac
-@@ -2343,6 +2343,9 @@ AS_CASE([$rb_cv_coroutine], [yes|''], [
+@@ -2346,6 +2346,9 @@ AS_CASE([$rb_cv_coroutine], [yes|''], [
          [*-openbsd*], [
              rb_cv_coroutine=copy
          ],
@@ -79,17 +82,17 @@ index f1ed36b..fc28564 100644
              rb_cv_coroutine=ucontext
          ]
 -- 
-2.26.0
+2.28.0
 
 
-From d85ec87013b5e80ded7ae235b6c2b23b95406989 Mon Sep 17 00:00:00 2001
+From b09b9c88d2fa107a5927d90b616fb944d1006fe7 Mon Sep 17 00:00:00 2001
 From: Gerasim Troeglazov <3dEyes@gmail.com>
 Date: Mon, 8 Jun 2020 19:42:51 +1000
 Subject: Disable stack-protector
 
 
 diff --git a/configure.ac b/configure.ac
-index fc28564..624f99d 100644
+index ca10de2..b13de6c 100644
 --- a/configure.ac
 +++ b/configure.ac
 @@ -587,7 +587,7 @@ AS_IF([test "$GCC" = yes], [
@@ -102,5 +105,5 @@ index fc28564..624f99d 100644
      ])
      AS_IF([test -z "${stack_protector+set}"], [
 -- 
-2.26.0
+2.28.0
 
