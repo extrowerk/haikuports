@@ -1,34 +1,4 @@
-From a3fb803a57f327d8c04a75235f50bd767ab41fa6 Mon Sep 17 00:00:00 2001
-From: Nobuyoshi Nakada <nobu@ruby-lang.org>
-Date: Tue, 15 Dec 2020 23:17:23 +0200
-Subject: Ignore failure on unsupported fcntl to drop non-blocking mode
-
-
-diff --git a/ruby.c b/ruby.c
-index 96d8f75..35f77dd 100644
---- a/ruby.c
-+++ b/ruby.c
-@@ -2136,9 +2136,13 @@ open_load_file(VALUE fname_v, int *xflag)
- 	rb_update_max_fd(fd);
- 
- #if defined HAVE_FCNTL && MODE_TO_LOAD != O_RDONLY
-+# ifdef ENOTSUP
-+#   define IS_SUPPORTED_OP(e) ((e) != ENOTSUP)
-+# else
-+#   define IS_SUPPORTED_OP(e) ((void)(e), 1)
-+# endif
- 	/* disabling O_NONBLOCK */
--	if (fcntl(fd, F_SETFL, 0) < 0) {
--	    e = errno;
-+	if (fcntl(fd, F_SETFL, 0) < 0 && IS_SUPPORTED_OP(e = errno)) {
- 	    (void)close(fd);
- 	    rb_load_fail(fname_v, strerror(e));
- 	}
--- 
-2.28.0
-
-
-From 33ec752f4c12a5f3cd1eeb17be899bed64564470 Mon Sep 17 00:00:00 2001
+From 9d09dd4c7b3225bf1c8c32eeb4df029a2e6de144 Mon Sep 17 00:00:00 2001
 From: =?UTF-8?q?Zolt=C3=A1n=20Mizsei?= <zmizsei@extrowerk.com>
 Date: Sun, 5 May 2019 15:35:20 +0200
 Subject: Test fix for Haiku
@@ -61,7 +31,7 @@ index 73f6f78..ba51c22 100644
 2.28.0
 
 
-From 075c64842168cfb5535a1b04b6d729bfeb7fab75 Mon Sep 17 00:00:00 2001
+From af8e4ec3c3eaa0461b2679b935fb90a9057b54df Mon Sep 17 00:00:00 2001
 From: =?UTF-8?q?Zolt=C3=A1n=20Mizsei?= <zmizsei@extrowerk.com>
 Date: Wed, 25 Dec 2019 19:53:24 +0100
 Subject: Add Haiku to the context support list
@@ -85,7 +55,7 @@ index 6766df2..ca10de2 100644
 2.28.0
 
 
-From b09b9c88d2fa107a5927d90b616fb944d1006fe7 Mon Sep 17 00:00:00 2001
+From 2a95629b1dffa49eff111d6ba82c10f906961101 Mon Sep 17 00:00:00 2001
 From: Gerasim Troeglazov <3dEyes@gmail.com>
 Date: Mon, 8 Jun 2020 19:42:51 +1000
 Subject: Disable stack-protector
@@ -104,6 +74,57 @@ index ca10de2..b13de6c 100644
  	stack_protector=no
      ])
      AS_IF([test -z "${stack_protector+set}"], [
+-- 
+2.28.0
+
+
+From 5c3e04837a1db517a4e6d0cc71189db224532626 Mon Sep 17 00:00:00 2001
+From: Nobuyoshi Nakada <nobu@ruby-lang.org>
+Date: Fri, 25 Dec 2020 07:53:59 +0100
+Subject: Ignore failure on unsupported fcntl to drop non-blocking mode
+
+
+diff --git a/ruby.c b/ruby.c
+index 96d8f75..c283912 100644
+--- a/ruby.c
++++ b/ruby.c
+@@ -2086,6 +2086,26 @@ load_file_internal(VALUE argp_v)
+     return (VALUE)ast;
+ }
+ 
++/* disabling O_NONBLOCK, and returns 0 on success, otherwise errno */
++static inline int
++disable_nonblock(int fd)
++{
++#if defined(HAVE_FCNTL) && defined(F_SETFL)
++    if (fcntl(fd, F_SETFL, 0) < 0) {
++        int e = errno;
++        ASSUME(e != 0);
++# if defined ENOTSUP
++        if (e == ENOTSUP) return 0;
++# endif
++# if defined B_UNSUPPORTED
++        if (e == B_UNSUPPORTED) return 0;
++# endif
++        return e;
++    }
++#endif
++    return 0;
++}
++
+ static VALUE
+ open_load_file(VALUE fname_v, int *xflag)
+ {
+@@ -2137,8 +2157,7 @@ open_load_file(VALUE fname_v, int *xflag)
+ 
+ #if defined HAVE_FCNTL && MODE_TO_LOAD != O_RDONLY
+ 	/* disabling O_NONBLOCK */
+-	if (fcntl(fd, F_SETFL, 0) < 0) {
+-	    e = errno;
++	if (MODE_TO_LOAD != O_RDONLY && (e = disable_nonblock(fd)) != 0) {
+ 	    (void)close(fd);
+ 	    rb_load_fail(fname_v, strerror(e));
+ 	}
 -- 
 2.28.0
 
