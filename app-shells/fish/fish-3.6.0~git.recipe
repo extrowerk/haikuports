@@ -3,12 +3,13 @@ DESCRIPTION="Fish is a shell geared towards interactive use. Its features are \
 focused on user friendliness and discoverability. The language syntax \
 is simple but incompatible with other shell languages."
 HOMEPAGE="https://ridiculousfish.com/shell/"
-COPYRIGHT="2005-2018 Axel Liljencrantz"
+COPYRIGHT="2005-2022 Axel Liljencrantz"
 LICENSE="GNU GPL v2"
-REVISION="3"
-SOURCE_URI="https://github.com/fish-shell/fish-shell/releases/download/$portVersion/fish-$portVersion.tar.gz"
-CHECKSUM_SHA256="e42bb19c7586356905a58578190be792df960fa81de35effb1ca5a5a981f0c5a"
-PATCHES="fish-$portVersion.patchset"
+REVISION="1"
+srcGitRev="ff497e25c05fc92e9e1328c837f768b1122d4763"
+SOURCE_URI="https://github.com/fish-shell/fish-shell/archive/$srcGitRev.tar.gz"
+CHECKSUM_SHA256="34a268401269b6195d4d86154e88ed4ac8c69cb471c20197e005c0f95481a1cf"
+SOURCE_DIR="fish-shell-$srcGitRev"
 
 ARCHITECTURES="?all !x86_gcc2"
 SECONDARY_ARCHITECTURES="?x86"
@@ -44,9 +45,10 @@ BUILD_REQUIRES="
 	devel:libpcre2_32$secondaryArchSuffix
 	"
 BUILD_PREREQUIRES="
-	cmd:awk
+	cmd:cmake
 	cmd:gcc$secondaryArchSuffix
 	cmd:make
+	cmd:pkg_config$secondaryArchSuffix
 	"
 
 defineDebugInfoPackage fish$secondaryArchSuffix \
@@ -56,12 +58,11 @@ defineDebugInfoPackage fish$secondaryArchSuffix \
 
 BUILD()
 {
-	export CFLAGS="-D_BSD_SOURCE"
-	export CXXFLAGS=$CFLAGS
-	export LIBS="-lnetwork -lexecinfo"
-
-	runConfigure ./configure \
-		--without-included-pcre2
+	cmake . $cmakeDirArgs \
+		-DCMAKE_BUILD_TYPE=RelWithDebInfo \
+		-DCMAKE_C_FLAGS="-D_DEFAULT_SOURCE" \
+		-DCMAKE_CXX_FLAGS="-D_DEFAULT_SOURCE" \
+		-DCMAKE_EXE_LINKER_FLAGS="-lnetwork -lexecinfo"
 
 	make $jobArgs
 }
