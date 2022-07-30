@@ -6,9 +6,9 @@ HOMEPAGE="https://ridiculousfish.com/shell/"
 COPYRIGHT="2005-2022 Axel Liljencrantz"
 LICENSE="GNU GPL v2"
 REVISION="1"
-srcGitRev="ff497e25c05fc92e9e1328c837f768b1122d4763"
+srcGitRev="1edcd8ab29dd87c8b562430d0087e242ed93e43e"
 SOURCE_URI="https://github.com/fish-shell/fish-shell/archive/$srcGitRev.tar.gz"
-CHECKSUM_SHA256="34a268401269b6195d4d86154e88ed4ac8c69cb471c20197e005c0f95481a1cf"
+CHECKSUM_SHA256="99ab42b50802cad1c28019d8d7475e973c36f7682b72f93974e1d86b7033ef5e"
 SOURCE_DIR="fish-shell-$srcGitRev"
 
 ARCHITECTURES="?all !x86_gcc2"
@@ -59,10 +59,10 @@ defineDebugInfoPackage fish$secondaryArchSuffix \
 BUILD()
 {
 	cmake . $cmakeDirArgs \
-		-DCMAKE_BUILD_TYPE=RelWithDebInfo \
+		-DCMAKE_BUILD_TYPE=Debug \
 		-DCMAKE_C_FLAGS="-D_DEFAULT_SOURCE" \
 		-DCMAKE_CXX_FLAGS="-D_DEFAULT_SOURCE" \
-		-DCMAKE_EXE_LINKER_FLAGS="-lnetwork -lexecinfo"
+		-DCMAKE_EXE_LINKER_FLAGS="-lnetwork -lexecinfo -lintl"
 
 	make $jobArgs
 }
